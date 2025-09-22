@@ -9,6 +9,7 @@ public class SyringSpawner : Status
 
     void Start()
     {
+        
         GameObject newSh = Instantiate(syring, transform.position, transform.rotation);
         newSh.GetComponent<SyringeEffect>().statuses = States;
     }
