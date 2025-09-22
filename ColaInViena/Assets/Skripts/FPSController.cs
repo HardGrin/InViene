@@ -12,7 +12,7 @@ public class FPSController : MonoBehaviour
     public Transform playerCamera;
     public float mouseSensitivity = 2f;
     public float verticalClamp = 85f;
-    [Range(0.01f, 1f)] public float lookSmoothness = 0.1f; // Плавность камеры
+    [Range(0.01f, 1f)] public float lookSmoothness = 0.1f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
     [Header("Head Bobbing")]
     public bool enableHeadBob = true;
@@ -25,7 +25,7 @@ public class FPSController : MonoBehaviour
     private float xRotation = 0f;
     private bool isGrounded;
 
-    // Для плавного вращения
+    // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     private Vector2 currentMouseDelta = Vector2.zero;
     private Vector2 targetMouseDelta = Vector2.zero;
     private Vector2 mouseSmoothVelocity = Vector2.zero;
@@ -33,7 +33,7 @@ public class FPSController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true; // Чтобы не крутился от коллизий
+        rb.freezeRotation = true; // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -60,11 +60,11 @@ public class FPSController : MonoBehaviour
 
         targetMouseDelta = new Vector2(mouseX, mouseY);
 
-        // Плавное сглаживание мыши
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
         currentMouseDelta.x = Mathf.SmoothDamp(currentMouseDelta.x, targetMouseDelta.x, ref mouseSmoothVelocity.x, lookSmoothness);
         currentMouseDelta.y = Mathf.SmoothDamp(currentMouseDelta.y, targetMouseDelta.y, ref mouseSmoothVelocity.y, lookSmoothness);
 
-        // Поворот камеры по вертикали
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         xRotation -= currentMouseDelta.y;
         xRotation = Mathf.Clamp(xRotation, -verticalClamp, verticalClamp);
 
@@ -79,9 +79,9 @@ public class FPSController : MonoBehaviour
 
         Vector3 move = (transform.right * h + transform.forward * v).normalized;
         Vector3 velocity = move * moveSpeed;
-        velocity.y = rb.velocity.y;
+        velocity.y = rb.linearVelocity.y;
 
-        rb.velocity = velocity;
+        rb.linearVelocity = velocity;
     }
 
     void HandleJump()
@@ -106,7 +106,7 @@ public class FPSController : MonoBehaviour
     {
         if (!enableHeadBob || playerCamera == null) return;
 
-        if (rb.velocity.magnitude > 0.1f && isGrounded)
+        if (rb.linearVelocity.magnitude > 0.1f && isGrounded)
         {
             bobTimer += Time.deltaTime * bobFrequency;
             float bobOffset = Mathf.Sin(bobTimer) * bobAmplitude;
