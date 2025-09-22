@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-
-
 public class VolumeController : MonoBehaviour
 {
     [SerializeField] private Volume volume;

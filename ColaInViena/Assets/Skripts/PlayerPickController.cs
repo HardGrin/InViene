@@ -8,7 +8,6 @@ public class PlayerPickController : MonoBehaviour
     [SerializeField] private LayerMask targetLayers;
     [SerializeField] private GameObject hand;
     [SerializeField] private GameObject syringeInHand;
-    private bool isInjection;
     public Animator injectionAnim;
     public Animator leftHandAnimation;
 
@@ -34,12 +33,8 @@ public class PlayerPickController : MonoBehaviour
     {
         if(Input.GetKeyUp(KeyCode.Mouse1))
         {
-            if (isInjection)
-            {
-                injectionAnim.SetTrigger("inject");
-                leftHandAnimation.SetTrigger("LHA_Trigger");
-                isInjection = false;
-            }
+            injectionAnim.SetTrigger("inject");
+            leftHandAnimation.SetTrigger("LHA_Trigger");
         }
 
 
@@ -56,7 +51,6 @@ public class PlayerPickController : MonoBehaviour
             // Raycast
             if (Physics.Raycast(origin, direction, out RaycastHit hit, rayLength, targetLayers))
             {
-                isInjection = true;
                 syringeInHand = hit.collider.gameObject;
                 syringeInHand.transform.parent = hand.transform;
                 syringeInHand.transform.localPosition = new Vector3(0,0,0);

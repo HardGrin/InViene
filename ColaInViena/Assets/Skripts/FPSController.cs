@@ -12,7 +12,6 @@ public class FPSController : MonoBehaviour
     public Transform playerCamera;
     public float mouseSensitivity = 2f;
     public float verticalClamp = 85f;
-    [Range(0.01f, 1f)] public float lookSmoothness = 0.1f; // Плавность камеры
 
     [Header("Head Bobbing")]
     public bool enableHeadBob = true;
@@ -24,11 +23,6 @@ public class FPSController : MonoBehaviour
     private Rigidbody rb;
     private float xRotation = 0f;
     private bool isGrounded;
-
-    // Для плавного вращения
-    private Vector2 currentMouseDelta = Vector2.zero;
-    private Vector2 targetMouseDelta = Vector2.zero;
-    private Vector2 mouseSmoothVelocity = Vector2.zero;
 
     void Start()
     {
@@ -58,18 +52,12 @@ public class FPSController : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        targetMouseDelta = new Vector2(mouseX, mouseY);
-
-        // Плавное сглаживание мыши
-        currentMouseDelta.x = Mathf.SmoothDamp(currentMouseDelta.x, targetMouseDelta.x, ref mouseSmoothVelocity.x, lookSmoothness);
-        currentMouseDelta.y = Mathf.SmoothDamp(currentMouseDelta.y, targetMouseDelta.y, ref mouseSmoothVelocity.y, lookSmoothness);
-
         // Поворот камеры по вертикали
-        xRotation -= currentMouseDelta.y;
+        xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -verticalClamp, verticalClamp);
 
         playerCamera.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        transform.Rotate(Vector3.up * currentMouseDelta.x);
+        transform.Rotate(Vector3.up * mouseX);
     }
 
     void HandleMovement()
