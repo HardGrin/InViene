@@ -71,7 +71,7 @@ public class LiquidStats : MonoBehaviour
 
             if (stats.ContainsKey(key))
             {
-                stats[key].Mix(otherStat.GetValue(), otherStat.GetWeight());
+                stats[key].Mix(otherStat);
             }
             else
             {

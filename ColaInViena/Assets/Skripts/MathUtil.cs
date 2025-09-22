@@ -1,20 +1,14 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.AI;
 
 public static class MathUtil
 {
 
     public static bool CheckLegalStatValue(StatValue statValue)
     {
-        if (!CheckLegalValue(statValue.GetValue())) return false;
-        if (!CheckLegalValue(statValue.GetWeight())) return false;
-
-        return true;
-    }
-
-    public static bool CheckLegalValue(double value)
-    {
-        if (!ValueAboveZero(value)) return false;
+        if (!ValueAboveZero(statValue.GetWeight())) return false;
+        if (!ValueAboveZero(statValue.GetValue()) && !statValue.IsAbsolute()) return false;
 
         return true;
     }
@@ -28,20 +22,43 @@ public static class MathUtil
         return true;
     }
 
-    public static (double newValue, double newWeight) StatMix(double value1, double weight1, double value2, double weight2)
+    public static StatValue StatMix(StatValue statValue, StatValue statValue2)
     {
-        double newWeight = (weight1 + weight2) / 2f;
 
-        double aWeight = weight1 + weight2;
+        double aWeight = statValue.GetWeight() + statValue2.GetWeight();
+
+        double newWeight = aWeight / 2f;
+
 
         if (aWeight == 0f)
         {
-            return (0f, newWeight);
+            return new StatValue();
         }
 
-        double newValue = (value1 * weight1 + value2 * weight2) / aWeight;
+        if (!statValue.IsAbsolute() && !statValue2.IsAbsolute())
+        {
+            double newValue = (statValue.GetValue() * statValue.GetWeight() + statValue2.GetValue() * statValue2.GetWeight()) / aWeight;
+            return new StatValue(newValue, newWeight, false);
+        }
 
-        return (newValue, newWeight);
+        if (statValue.IsAbsolute() && statValue2.IsAbsolute())
+        {
+            double newValue = (statValue.GetValue() * statValue.GetWeight() + statValue2.GetValue() * statValue2.GetWeight()) / aWeight;
+            return new StatValue(newValue, newWeight, true);
+        }
+
+        // one absolute, one relative
+        StatValue abs = statValue.IsAbsolute() ? statValue : statValue2;
+        StatValue rel = statValue.IsAbsolute() ? statValue2 : statValue;
+
+        // relative modifies absolute
+        double newVal = (
+            (abs.GetValue() * abs.GetWeight()) +
+            (abs.GetValue() * rel.GetValue() * rel.GetWeight())
+        ) / aWeight;
+
+        return new StatValue(newVal, newWeight, true);
+
     }
 
 

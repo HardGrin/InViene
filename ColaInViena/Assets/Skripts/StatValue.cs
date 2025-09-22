@@ -7,24 +7,47 @@ public class StatValue
 {
 
     private double value;
+
+    /*
+    Weight is the importancy of the value in the calculations. 1 is normal level, higher = more, lower = less.
+    Cannot be less than 0. If equal to zero it means that it means nothing and therefore it will not even be
+    calculated.
+    */
     private double weight;
+    
+    /*
+    Absolute boolean means that the value is either absolute or relative. Absolute
+    value ex: +50, relative value ex: +50% (value will be 1.5d). Relative value cannot
+    be below zero.
+    */
+    private bool absolute;
+
+    public StatValue(double value, double weight, bool absolute)
+    {
+        this.value = value;
+        this.weight = weight;
+        this.absolute = absolute;
+    }
 
     public StatValue(double value, double weight)
     {
         this.value = value;
         this.weight = weight;
+        this.absolute = true;
     }
 
     public StatValue(double value)
     {
         this.value = value;
         this.weight = 1;
+        this.absolute = true;
     }
 
     public StatValue()
     {
         this.value = 0;
         this.weight = 1;
+        this.absolute = true;
     }
 
     public bool CheckLegal()
@@ -36,24 +59,32 @@ public class StatValue
 
     public virtual void SetEmpty()
     {
-        value = 0f;
+        SetValue(0f);
     }
 
     public bool IsEmpty()
     {
-        if (value == 0f || weight == 0f)
+        if (GetValue() == 0f || GetWeight() == 0f)
         {
             return true;
         }
         return false;
     }
 
+    // Use this method for hooking, not SetValue itself to not break anything
+    public virtual double HookSetValue(double value)
+    {
+        // Do nothing
+        return value;
+    }
+
     public void SetValue(double value)
     {
-        if (!MathUtil.CheckLegalValue(value))
+        if (!MathUtil.ValueAboveZero(value) && !IsAbsolute())
         {
             throw new ArgumentException("Value is not legal: " + value);
         }
+        value = HookSetValue(value);
         this.value = value;
     }
 
@@ -72,34 +103,47 @@ public class StatValue
         return weight;
     }
 
-    public virtual void Mix(double value2, double weight2)
+    public virtual void Mix(StatValue statValue)
     {
-        (value, weight) = MathUtil.StatMix(value, weight, value2, weight2);
+        StatValue newStatValue = MathUtil.StatMix(this, statValue);
+        this.value = newStatValue.value;
+        this.weight = newStatValue.weight;
+        this.absolute = newStatValue.absolute;
     }
 
     public virtual void AddValue(double value)
     {
-        this.value += value;
+        SetValue(GetValue() + value);
     }
 
     public virtual void DecimateValue(double value)
     {
-        this.value -= value;
+        SetValue(GetValue() - value);
     }
 
     public virtual void MultiplyValue(double value)
     {
-        this.value *= value;
+        SetValue(GetValue() * value);
     }
 
     public virtual void DivideValue(double value)
     {
-        this.value /= value;
+        SetValue(GetValue() / value);
+    }
+
+    public virtual bool IsAbsolute()
+    {
+        return absolute;
+    }
+
+    public virtual void SetAbsolute(bool absolute)
+    {
+        this.absolute = absolute;
     }
 
     public virtual void FloorValue()
     {
-        value = Math.Floor(value);
+        SetValue(Math.Floor(value));
     }
 
     public virtual void Clamp(double min, double max)
@@ -107,7 +151,7 @@ public class StatValue
         if (min > max)
             throw new ArgumentException("min cannot be greater than max");
 
-        value = Math.Max(min, Math.Min(max, value));
+        SetValue(Math.Max(min, Math.Min(max, value)));
     }
 
     public StatValue Copy()
